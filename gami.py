@@ -283,7 +283,7 @@ class QuestAgent(AIAgentManager):
                     "type": "learning/action/quiz/challenge",
                     "points": 100-300,
                     "difficulty": "Easy/Medium/Hard",
-                    "estimated_time": "5-20 minutes",
+                    "estimated_time": "1-2 minutes",
                     "unlock_reward": "Specific reward related to goal",
                     "goal_category": "{goal_data['category']}",
                     "learning_content": "Educational content (only for learning type)",
@@ -388,7 +388,7 @@ class QuestAgent(AIAgentManager):
                     "type": "learning",
                     "points": 100,
                     "difficulty": "Easy",
-                    "estimated_time": "10 minutes",
+                    "estimated_time": "1-2 minutes",
                     "unlock_reward": "Health Insurance Guide",
                     "goal_id": goal_data['id'],
                     "learning_content": """# Health Insurance Basics
@@ -417,7 +417,7 @@ Health insurance is a contract between you and an insurance company that helps p
                     "type": "learning",
                     "points": 150,
                     "difficulty": "Easy",
-                    "estimated_time": "10 minutes",
+                    "estimated_time": "1-2 minutes",
                     "unlock_reward": "Insight into emergency fund benefits",
                     "goal_id": goal_data['id'],
                     "learning_content": """# Emergency Fund Basics
@@ -454,7 +454,7 @@ An emergency fund is a savings buffer to cover unexpected expenses, providing fi
                     "type": "learning",
                     "points": 100,
                     "difficulty": "Easy",
-                    "estimated_time": "10 minutes",
+                    "estimated_time": "1-2 minutes",
                     "unlock_reward": f"{goal_data['category']} Guide",
                     "goal_id": goal_data['id'],
                     "learning_content": f"{goal_data['category']} is an important aspect of financial planning."
@@ -492,7 +492,7 @@ class NudgeAgent(AIAgentManager):
             {"role": "user", "content": "What should the user do next based on their progress?"}
         ]
 
-        response = self.get_completion(messages, march=True, temperature=0.8)
+        response = self.get_completion(messages, temperature=0.8)
         if response:
             try:
                 response_clean = self._clean_json_response(response)
@@ -604,7 +604,7 @@ def main():
 
     # Sidebar - User Profile Selection
     st.sidebar.title("🏦 Lloyds LifeQuest")
-    st.sidebar.markdown("### Choose Your Profile")
+    st.sidebar.markdown("### Persona Selection")
 
     if st.session_state.current_user is None:
         selected_persona = st.sidebar.selectbox(
@@ -615,6 +615,7 @@ def main():
         # Input fields for persona attributes
         default_persona = PERSONAS_CONFIG[selected_persona]
         age = st.sidebar.number_input("Age", min_value=18, max_value=100, value=default_persona['age'])
+        st.sidebar.markdown("### Lifestyle Selection")
         occupation = st.sidebar.text_input("Occupation", value=default_persona['occupation'])
         income_range = st.sidebar.text_input("Income Range", value=default_persona['income_range'])
         current_products = st.sidebar.multiselect(
@@ -690,9 +691,9 @@ def main():
     if st.session_state.current_user is None:
         st.title("🌟 Welcome to Lloyds LifeQuest")
         st.markdown("""
-        ### Your AI-Powered Financial Wellness Journey
+        ### Your AI-Powered Protection & Wellness Journey
 
-        **LifeQuest** uses advanced AI agents to create personalized financial goals, 
+        **LifeQuest** uses advanced AI agents to create personalized protection goals, 
         engaging quests, and reward you for building better financial habits.
 
         #### Features:
@@ -705,7 +706,7 @@ def main():
         """)
     else:
         persona = PERSONAS_CONFIG[st.session_state.current_user]
-        st.title(f"Hi {persona['name']}! 👋 Let's Build Your Financial Future")
+        st.title(f"Hi {persona['name']}! 👋 Let’s Secure your life with LifeQuest")
 
         # Progress Bar
         progress_percentage = min(st.session_state.user_progress['total_points'] / 2000, 1.0)
@@ -713,10 +714,11 @@ def main():
         st.caption(f"Journey Progress: {int(progress_percentage * 100)}% Complete")
 
         # Tabs
-        tab1, tab2, tab3, tab4 = st.tabs(["🎯 Goals", "🎮 Quests", "🏆 Rewards", "💡 AI Coach"])
+        tab1, tab2, tab3, tab4 = st.tabs(["🎯 Goals", "🎮 Quests", "💡 AI Coach", "🏆 Rewards"])
 
         with tab1:
-            st.header("Your Financial Goals")
+            st.header("Your Insurance Protection Goals")
+            st.success("89% of freelancers aged 25–35 in London opt for below income protection goals")
             if st.session_state.user_progress['current_goal']:
                 current_goal = st.session_state.user_progress['current_goal']
                 st.success(f"🎯 **Currently Selected Goal:** {current_goal['title']}")
@@ -898,7 +900,7 @@ def main():
             else:
                 st.info("👈 Select a goal first to unlock quests!")
 
-        with tab3:
+        with tab4:
             st.header("Your Rewards & Achievements")
             st.markdown("**Points can be redeemed as a discount on processing fees for Lloyds Bank products.**")
             col1, col2, col3 = st.columns(3)
@@ -914,6 +916,8 @@ def main():
                 st.subheader("🔓 Unlocked Products & Trials")
                 for product in st.session_state.user_progress['unlocked_products']:
                     st.success(f"✅ {product}")
+                    st.success(
+                        "**🏆You are rewarded with LifePoints and unlocks a simplified £50K critical illness cover for just £5/month**")
             total_points = st.session_state.user_progress['total_points']
             badge = rewards_agent.get_achievement_badge(total_points)
             st.subheader(f"🏆 Current Achievement: {badge}")
@@ -932,7 +936,7 @@ def main():
                 else:
                     st.info(f"#{i + 1} {user['name']}: {user['points']} points")
 
-        with tab4:
+        with tab3:
             st.header("💡 AI Coach Recommendations")
             if st.button("🤖 Get Next Best Action", type="primary"):
                 with st.spinner("AI Coach is analyzing your progress..."):
@@ -941,6 +945,7 @@ def main():
                     st.success(f"💬 **Coach Says:** {nudge['message']}")
                     st.info(f"🎯 **Next Action:** {nudge['action']}")
                     st.warning(f"⚡ **Urgency:** {nudge['urgency']}")
+                    st.warning("⚡ **Projected inflation is 4.2% — consider adjusting your coverage.**")
                     if nudge.get('reward_mention'):
                         st.success(f"🎁 **Reward:** {nudge['reward_mention']}")
             st.subheader("💬 Chat with Your AI Coach")
@@ -950,8 +955,16 @@ def main():
                     {"role": "system", "content": f"""You are a helpful AI Financial Coach for Lloyds Bank's LifeQuest platform.
                     The user is {persona['name']}, a {persona['age']}-year-old {persona['occupation']}.
                     Their current progress: {st.session_state.user_progress}
+                    for instance:
 
-                    Provide helpful, encouraging, and actionable financial advice."""},
+                    EVEN IF THE USER SAYS JUST HI, PROVIDE HIM WITH THE BELOW INFORMATION PERFECTLY TAILORED AS A COACH
+                    analyze his income pattern and offers a quarterly premium plan to match his seasonality.
+                    give warning like: inflation is expected to rise 4.2% next year. Consider adjusting your term coverage by 10%.The freelance sector is projected to grow 18%, but with increased volatility. You might need flexible premium options.
+
+                    Provide helpful, encouraging, and actionable financial advice.
+                    Suggest plans based on user's income and goals, and how much premium per month plans they should consider.
+                    FOR EXAMPLE a simplified £50K critical illness cover for just £5/month
+                    """},
                     {"role": "user", "content": user_question}
                 ]
                 response = nudge_agent.get_completion(messages)
